@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="page_head(title, remove)" th:remove="${remove}">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0">
+
+	<title>[[${title}]] - [[${SITE_NAME}]]</title>
+	
+	<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/fontawesome/all.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/style.css}" />
+	<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
+	<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}" ></script>
+</head>
+<body>
+
+<th th:fragment="column_link(fieldName, columnLabel, removeTag)" th:remove="${removeTag}">
+	<a class="text-white"
+		th:href="@{${moduleURL} + '/page/' + ${currentPage} + '?sortField=' + ${fieldName}  +'&sortDir=' + ${sortField != fieldName ? sortDir : reverseSortDir} + ${keyword != null ? '&keyword=' + keyword : ''} + ${categoryId != null ? '&categoryId=' + categoryId : ''}}">
+		[[${columnLabel}]]
+	</a>								
+	<span th:if="${sortField == fieldName}"
+		th:class="${sortDir == 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'}" ></span>					
+</th>
+	
+<a th:fragment="page_link(moduleURL, pageNum, label)"
+	class="page-link" 
+	th:href="@{${moduleURL} + '/page/' + ${pageNum} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">[[${label}]]</a>
+		
+<div th:fragment="pagination(moduleURL, entityName)" th:remove="tag">
+	<div class="text-center m-1" th:if="${totalItems > 0}">
+		<span>Showing [[${entityName}]] # [[${startCount}]] to [[${endCount}]] of [[${totalItems}]]</span>
+	</div>
+	<div class="text-center m-1" th:unless="${totalItems > 0}">
+		<span>No [[${entityName}]] found</span>
+	</div>
+	
+	<div th:if="${totalPages > 1}">
+		<nav>
+		  <ul class="pagination justify-content-center flex-wrap">
+		    <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+		    	<a th:replace="fragments :: page_link(${moduleURL}, 1, 'First')"></a>
+		    </li>		  
+		    <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+		    	<a th:replace="fragments :: page_link(${moduleURL}, ${currentPage - 1}, 'Previous')"></a>
+		    </li>
+		    
+		    <li th:class="${currentPage != i ? 'page-item': 'page-item active'}" 
+		    	th:each="i : ${#numbers.sequence(1, totalPages)}">
+		    	<a th:replace="fragments :: page_link(${moduleURL}, ${i}, ${i})"></a>
+		    </li>
+		    
+		    <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}">
+		    	<a th:replace="fragments :: page_link(${moduleURL}, ${currentPage + 1}, 'Next')"></a>
+		    </li>
+		    
+		    <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}">
+		    	<a th:replace="fragments :: page_link(${moduleURL}, ${totalPages}, 'Last')"></a>
+		    </li>		    
+		  </ul>
+		</nav>	
+	</div>	
+</div>	
+
+<div th:fragment="modal_dialog" class="modal fade text-center" id="modalDialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="modalTitle">Warning</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			
+			<div class="modal-body">
+				<span id="modalBody"></span>
+			</div>
+			
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div th:fragment="confirm_modal" class="modal fade text-center" id="confirmModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Delete Confirmation</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			
+			<div class="modal-body">
+				<span id="confirmText"></span>
+			</div>
+			
+			<div class="modal-footer">
+				<a class="btn btn-success" href="" id="yesButton">Yes</a>
+				<button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div th:fragment="format_currency(amount)" th:remove="tag">
+	<span th:if="${CURRENCY_SYMBOL_POSITION == 'Before price'}" th:remove="tag">[[${CURRENCY_SYMBOL}]]</span>[[${#numbers.formatDecimal(amount, 1, THOUSANDS_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE)}]]<span th:if="${CURRENCY_SYMBOL_POSITION == 'After price'}" th:remove="tag">[[${CURRENCY_SYMBOL}]]</span>
+</div>
+		
+<div th:fragment="format_time(dateTime)" th:remove="tag">
+	<span th:text="${#dates.format(dateTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
+</div>	
+
+<div th:fragment="currency_input(amount)" th:remove="tag">
+	<input type="text" readonly class="form-control" th:value="${(CURRENCY_SYMBOL_POSITION == 'Before price' ? CURRENCY_SYMBOL : '') + #numbers.formatDecimal(amount, 1, THOUSANDS_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE) + (CURRENCY_SYMBOL_POSITION == 'After price' ? CURRENCY_SYMBOL : '')}">
+</div>	
+
+<div th:fragment="search_form()" th:remove="tag">
+	<form th:action="@{${moduleURL} + '/page/1'}" class="form-inline m-3">
+		<input type="hidden" name="sortField" th:value="${sortField}" />
+		<input type="hidden" name="sortDir" th:value="${sortDir}" />
+		
+		Filter:&nbsp;
+		<input type="search" name="keyword" th:value="${keyword}" class="form-control" required/>
+		&nbsp;&nbsp;
+		<button type="submit" class="btn btn-primary">
+			<i class="fas fa-search"></i>
+		</button>
+		&nbsp;&nbsp;
+		<button type="button" class="btn btn-secondary" onclick="clearFilter()">
+			<i class="fas fa-eraser"></i>
+		</button>
+	</form>
+</div>
+	
+</body>
+</html>

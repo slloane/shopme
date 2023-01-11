@@ -1,0 +1,2 @@
+# shopme
+Application multi-modules du e-commerce: l'admin peut gérer les Utilisateurs, les Catégories, les Marques, les Produits, les Clients, les Expéditions, le listing des Commandes et le client peut accéder à la liste des catégories, les détails des produits, la recherche de produits. Il peut gérer son panier, la caisse et ses commandes 
